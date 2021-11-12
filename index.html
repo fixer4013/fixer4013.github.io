@@ -17,18 +17,21 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="js/three.js"></script> <!--Problem of no rendering anything (sourcing of the script had an error)-->
-    <script type="module" src="GLTFLoader.js"></script>
-    <script type="module"> //in order for GLTFLoader to work we need a module tag
+    <script src="GLTFLoader.js"></script>
+    <script src="ArcballControls.js"></script>
+    <script type="module"> //in order for import to work module tag
 
-
+        
         import {GLTFLoader} from "./GLTFLoader.js";
+        import {ArcballControls} from "./ArcballControls.js";
 
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.01, 1000);
+        var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 1000);
 
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+
 
         var loader = new GLTFLoader();
 
@@ -37,24 +40,38 @@
 
             obj = gltf.scene;
             scene.add(gltf.scene);
+            renderer.render( scene, camera ); //This renders the scene before the event listener of the ArcballControls.
             
 
         });
 
         scene.background = new THREE.Color(0x79797A);
 
-        var light = new THREE.HemisphereLight(0xffffff, 0x000000, 5);
+        var light = new THREE.AmbientLight(0x404040, 5);
         scene.add(light);
-        camera.position.set(0, 0, 2);
 
+        var controls = new ArcballControls( camera, renderer.domElement, scene );
+
+        controls.addEventListener( 'change', function () {
+
+            renderer.render( scene, camera );
+
+        } );
+
+        camera.position.set( 0, 0, 3 );
+        controls.update();
+
+
+        /*
         function animate(){
             requestAnimationFrame(animate)
             obj.rotation.y += 0.01;
-            renderer.render(scene, camera);
+            obj.rotation.z -= 0.01;
+            renderer.render(scene, camera); //this renders the whole scene. You cannot see anything without it!
             }
             
             animate();
-            
+            */
 
         
         /*Creating a new scene + camera that has a field of view of 75, an aspect ratio (always width / height), and near and far clipping plane.
@@ -77,9 +94,9 @@
         var animate = function () {
             requestAnimationFrame( animate );
             
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            cube.rotation.z += 0.01;
+           
+            cube.rotation.y += 0.05;
+            
 
             renderer.render( scene, camera );
         };
